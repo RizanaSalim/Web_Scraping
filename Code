@@ -1,13 +1,13 @@
 PATH = "C:\Web_Scraping\chromedriver.exe" #webdriver path
-xlpath = "C:\Web_Scraping\BOM.xlsx" #excel file path
-url_col = 3
-data1_col = 4
-data2_col = 5
-url_start = 2
-url_end = 4
+xlpath = "C:\Web_Scraping\sample_BOM.xlsx" #excel file path
+url_col = 3 #excel sheet coloumn having the URL 
+data1_col = 4 #coloumn to write data1 
+data2_col = 5 #coloumn to write data2
+url_start = 2 #row of first URL
+url_end = 4 #row of last UL
 
-xpath1 = "/html/body/div[1]/div/div[3]/div[1]/div[2]/div[2]/div/div[4]/div[1]/div/div[1]" #full xpath of data 0
-xpath2 = "/html/body/div[1]/div/div[3]/div[1]/div[2]/div[2]/div/div[4]/div[1]/div/div[1]" #full xpath of data 1
+xpath1 = "/html/body/div[2]/main/div/div[1]/div[2]/div[1]/div/div[1]/div/div/span" #full xpath of data 0
+xpath2 = "/html/body/div[2]/main/div/div[1]/div[2]/div[1]/div/div[4]/span[1]/table/tbody/tr[1]/td[2]" #full xpath of data 1
 
 from openpyxl import load_workbook
 from selenium import webdriver
@@ -19,10 +19,9 @@ import time
 file =load_workbook(xlpath)
 sheet = file.active
 
-browser = webdriver.Chrome(PATH)
-
 def web_scrape(url):
 
+    browser = webdriver.Chrome(PATH)
     browser.get(url)
     try:
         stock = WebDriverWait(browser, 50).until(
@@ -32,20 +31,24 @@ def web_scrape(url):
         unitcost = WebDriverWait(browser, 50).until(
             EC.presence_of_element_located((By.XPATH, xpath2))
         )
-        #return [stock.text[:-9],unitcost.text[2:]]
-        return [stock.text,unitcost.text]
+        return [stock.text[:-9],unitcost.text[2:]]
+        #return [stock.text,unitcost.text]
 
     finally:
-        #browser.quit()
-        print("paused")
-        time.sleep(1)
+        browser.quit()
+        print("Data Scraped")
+        print("Session Terminated")
+        print("Updating Data.....")
         
 for i in range(url_start,(url_end+1)):
     web_scrape_out = web_scrape(sheet.cell(row=i,column=url_col).value)
     print(web_scrape_out[0]+"   "+web_scrape_out[1])
     sheet.cell(row=i,column=data1_col).value = web_scrape_out[0]
     sheet.cell(row=i,column=data2_col).value = web_scrape_out[1]
-    print("ok")
+    print("Data Updated")
+    print("Intentional Delay...")
+    time.sleep(3)
 
 file.save("C:\Web_Scraping\BOM.xlsx")
-browser.close()
+print("****COMPLETED****")
+print(" ")
