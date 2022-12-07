@@ -1,1 +1,1 @@
-A tutorial on how to do web scraping in Python.
+A tutorial on web scraping in Python.
